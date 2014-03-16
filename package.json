@@ -1,0 +1,16 @@
+{
+    "name": "bem-weiqi",
+    "version": "0.2.0",
+    "description": "",
+    "keywords": [],
+    "author": "Alexey Litvinov <iamhoneyboy@gmail.com>",
+    "dependencies": {
+        "bower": "*",
+        "enb": "*",
+        "enb-bemxjst": "*",
+        "enb-modules": "*",
+        "vow": "*",
+        "vow-fs": "*"
+    },
+    "private": true
+}

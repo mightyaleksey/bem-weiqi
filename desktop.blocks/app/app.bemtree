@@ -1,0 +1,28 @@
+block('app').def()(function () {
+    return applyCtx({
+        block: 'page',
+        title: 'Weiqi',
+        head: [
+            {elem: 'css', url: '/desktop.bundle.css'},
+            {elem: 'js', url: '/desktop.bundle.js'}
+        ],
+        content: [
+            {
+                block: 'scheme',
+                mods: {
+                    size: 'm',
+                    theme: 'casual'
+                }
+            },
+            ' ',
+            {
+                block: 'scheme',
+                mods: {
+                    marking: 'yes',
+                    size: 'm',
+                    theme: 'casual'
+                }
+            }
+        ]
+    });
+});

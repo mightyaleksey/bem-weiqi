@@ -1,0 +1,20 @@
+block('scheme')(
+    js()(true),
+
+    content()([
+        {
+            block: 'canvas',
+            mix: {
+                block: 'scheme',
+                elem: 'goban'
+            }
+        },
+        {
+            block: 'canvas',
+            mix: {
+                block: 'scheme',
+                elem: 'game'
+            }
+        }
+    ])
+);

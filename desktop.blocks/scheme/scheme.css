@@ -1,0 +1,21 @@
+.scheme
+{
+    position: relative;
+    display: inline-block;
+}
+
+.scheme__goban,
+.scheme__game
+{
+    display: block;
+
+    width: 100%;
+    height: 100%;
+}
+
+.scheme__game
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+}
