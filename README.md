@@ -1,25 +1,12 @@
-## Weiqi
-Hello
+## Вэйци
 
-This is my small Weiqi (Go game) project. Currently I have small implementation BEM blocks, which are responsible for displaying the game board itself.
+Небольшой мой проект по Вэйци (*кит.*; также *яп.* **го**, *кор.* **падук**). В данном проекте я хочу реализовать набор блоков, которые позволят создать игровое поле или удобный редактор для задачек. Небольшая [демонстрация](http://sullenor.github.io/bem-weiqi/).
 
-### About the game
+### Подробнее об игре
 * [Sensei's Library](http://senseis.xmp.net/?Go)
 * [Wiki](http://en.wikipedia.org/wiki/Go_(game))
 
-### Dependencies
+### Зависимости
 * `node.js`
 * `enb`
 * `bem-core`
-
-### Installation
-Make sure you have installed `node.js`. Run in the repository folder:
-```
-make install
-```
-That will download necessary `npm` modules and `bower` components.
-
-### Launch
-```
-make build run
-```
