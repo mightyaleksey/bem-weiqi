@@ -135,6 +135,63 @@ modules.define('i-bem__dom', function (provide, dom) {
             });
         },
         /**
+         * @param {Number}  x
+         * @param {Number}  y
+         * @param {Boolean} [white]
+         */
+        drawStone: function (x, y, white) {
+            var goban = this.findBlockInside('game', 'canvas');
+            var coords = this.countCoords();
+            var unit = this.countUnit();
+            var palette = this.getPalette();
+
+            var delta = Math.ceil(unit / 2) - 1;
+            var delta2 = Math.ceil(unit / 2) - 2;
+
+            if (white) {
+                var fill = goban.createRadialGradient(coords[x] - unit / 3, coords[y] - unit / 3, 1, coords[x] - unit / 3, coords[y] - unit / 3, unit);
+                fill.addColorStop(0, '#fefefe');
+                fill.addColorStop(1, '#cecece');
+
+                goban
+                    .beginPath()
+                    .fillStyle('#8d8d8c')
+                    .arc(coords[x], coords[y], delta, 0, 2 * Math.PI)
+                    .fill()
+                    .fillStyle(fill)
+                    .arc(coords[x], coords[y], delta2, 0, 2 * Math.PI)
+                    .fill();
+            } else {
+                var fill = goban.createRadialGradient(coords[x] - unit / 5, coords[y] - unit / 5, 1, coords[x] - unit / 5, coords[y] - unit / 5, unit);
+                fill.addColorStop(0, '#525151');
+                fill.addColorStop(1, '#000000');
+
+                goban
+                    .beginPath()
+                    .fillStyle('#020100')
+                    .arc(coords[x], coords[y], delta, 0, 2 * Math.PI)
+                    .fill()
+                    .fillStyle(fill)
+                    .arc(coords[x], coords[y], delta2, 0, 2 * Math.PI)
+                    .fill();
+            }
+        },
+        /**
+         * @param {Number} x
+         * @param {Number} y
+         */
+        removeStone: function (x, y) {
+            var goban = this.findBlockInside('game', 'canvas');
+            var coords = this.countCoords();
+            var unit = this.countUnit();
+
+            var delta = Math.ceil(unit / 2) - 1;
+            x = coords[x] - delta;
+            y = coords[y] - delta;
+
+            goban.clearRect(x, y, delta * 2 + 1, delta * 2 + 1);
+        },
+        /**
          * Возвращает хеш с цветами
          * Доопределяется в модификаторе theme
          * @private
