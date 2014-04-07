@@ -11,7 +11,8 @@ block('app').def()(function () {
                 block: 'scheme',
                 mods: {
                     size: 'm',
-                    theme: 'casual'
+                    theme: 'casual',
+                    type: 'game'
                 }
             },
             ' ',
@@ -20,7 +21,8 @@ block('app').def()(function () {
                 mods: {
                     marking: 'yes',
                     size: 'm',
-                    theme: 'casual'
+                    theme: 'casual',
+                    type: 'game'
                 }
             }
         ]
