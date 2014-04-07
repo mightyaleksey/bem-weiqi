@@ -13,7 +13,10 @@ add_nodes:
 	@mkdir -p desktop.bundle
 
 build: $(ENB)
-	@$(ENB) make
+	@YENV=production $(ENB) make
+
+dev: $(ENB)
+	@YENV=development $(ENB) make
 
 run:
 	@node app.js

@@ -1,37 +1,72 @@
 module.exports = function (config) {
     config.node('desktop.bundle', function (nodeConfig) {
+        /* Уровни для большинства технологий */
+        nodeConfig.addTech(use('levels', {target: '__?.levels', levels: desktopLevels()}));
+
+        /* Файлы для bemtree */
         nodeConfig.addTechs([
-            /* Сборка bemtree по уровням */
-            use('levels', {levels: desktopLevels()}),
-            use('bemdecl-from-levels', {
-                levels: bemtreeLevels(),
-                target: '?.bemtree.bemdecl.js'
-            }),
+            use('bemdecl-from-levels', {target: '__?.bt.bemdecl.js', levels: bemtreeLevels()}),
             use('deps', {
-                bemdeclTarget: '?.bemtree.bemdecl.js',
-                depsTarget: '?.bemtree.deps.js'
+                depsTarget: '__?.bt.deps.js',
+                bemdeclTarget: '__?.bt.bemdecl.js',
+                levelsTarget: '__?.levels'
             }),
             use('files', {
-                depsTarget: '?.bemtree.deps.js',
-                filesTarget: '?.bemtree.files',
-                dirsTarget: '?.bemtree.dirs'
-            }),
-            use('bemtree', {filesTarget: '?.bemtree.files'}),
-
-            /* Сборка статики + bemhtml из bemtree */
-            use('bemjson-from-bemtree', {levels: desktopLevels()}),
-            use('bemdecl-from-bemjson'),
-            use('deps-with-modules'),
-            use('files'),
-            use('bemhtml'),
-            use('css'),
-            use('browser-js'),
-            use('prepend-modules', {source: '?.browser.js'})
+                filesTarget: '__?.bt.files',
+                dirsTarget: '__?.bt.dirs',
+                depsTarget: '__?.bt.deps.js',
+                levelsTarget: '__?.levels'
+            })
         ]);
 
+        nodeConfig.addTechs([
+            /* Файлы для bemhtml и статики */
+            use('bemjson-from-bemtree', {target: '__?.bemjson.js', levels: desktopLevels()}),
+            use('bemdecl-from-bemjson', {destTarget: '__?.bemdecl.js', sourceTarget: '__?.bemjson.js'}),
+            use('deps-with-modules', {
+                depsTarget: '__?.deps.js',
+                bemdeclTarget: '__?.bemdecl.js',
+                levelsTarget: '__?.levels'
+                // sourceSuffixes: ['vanilla.js', 'js']
+            }),
+            use('files', {
+                filesTarget: '__?.files',
+                dirsTarget: '__?.dirs',
+                depsTarget: '__?.deps.js',
+                levelsTarget: '__?.levels'
+            }),
+            /* Стили */
+            use('css', {target: '_?.css', filesTarget: '__?.files'}),
+            /* Клиентский js + модули */
+            use('browser-js', {target: '_?.browser.js', filesTarget: '__?.files'}),
+            use('prepend-modules', {target: '_?.js', source: '_?.browser.js'})
+        ]);
+
+        nodeConfig.mode('development', function (nodeConfig) {
+            nodeConfig.addTechs([
+                use('bemtree', {filesTarget: '__?.bt.files', devMode: true}),
+                use('bemhtml', {filesTarget: '__?.files', devMode: true}),
+                use('file-copy', {destTarget: '?.css', sourceTarget: '_?.css'}),
+                use('file-copy', {destTarget: '?.js', sourceTarget: '_?.js'})
+            ]);
+        });
+
+        nodeConfig.mode('production', function (nodeConfig) {
+            nodeConfig.addTechs([
+                use('bemtree', {filesTarget: '__?.bt.files', devMode: false}),
+                use('bemhtml', {
+                    filesTarget: '__?.files',
+                    devMode: false
+                    // cache: true
+                }),
+                use('borschik', {destTarget: '?.css', sourceTarget: '_?.css', minify: true}),
+                use('borschik', {destTarget: '?.js', sourceTarget: '_?.js', minify: true})
+            ]);
+        });
+
         nodeConfig.addTargets([
-            '?.bemtree.js',
             '?.bemhtml.js',
+            '?.bemtree.js',
             '?.css',
             '?.js'
         ]);
@@ -59,15 +94,20 @@ function desktopLevels() {
  */
 var techs = {
     'bemdecl-from-bemjson': require('enb/techs/bemdecl-from-bemjson'),
+    'borschik':             require('enb/techs/borschik'),
     'browser-js':           require('enb/techs/browser-js'),
     'css':                  require('enb/techs/css'),
     'deps':                 require('enb/techs/deps'),
+    'file-copy':            require('enb/techs/file-copy'),
     'files':                require('enb/techs/files'),
     'levels':               require('enb/techs/levels'),
+
     'bemhtml':              require('enb-bemxjst/techs/bemhtml'),
     'bemtree':              require('enb-bemxjst/techs/bemtree'),
+
     'deps-with-modules':    require('enb-modules/techs/deps-with-modules'),
     'prepend-modules':      require('enb-modules/techs/prepend-modules'),
+
     'bemdecl-from-levels':  require('./techs/bemdecl-from-levels'),
     'bemjson-from-bemtree': require('./techs/bemjson-from-bemtree')
 };
