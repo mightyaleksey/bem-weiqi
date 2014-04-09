@@ -4,7 +4,7 @@ module.exports = use;
 use.extend = extend;
 
 var inherit = require('inherit');
-var _ = require('underscore');
+var _ = require('lodash');
 
 /**
  * Хранилище технологий

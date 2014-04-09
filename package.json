@@ -1,20 +1,20 @@
 {
-    "name": "bem-weiqi",
-    "version": "0.2.0",
-    "description": "",
-    "keywords": [],
-    "author": "Alexey Litvinov <iamhoneyboy@gmail.com>",
-    "dependencies": {
-        "bower": "*",
-        "enb": "*",
-        "enb-bemxjst": "*",
-        "enb-modules": "*",
-        "vow": "*",
-        "vow-fs": "*"
-    },
-    "devDependencies": {
-        "underscore": "^1.6.0",
-        "inherit": "^2.2.1"
-    },
-    "private": true
+  "name": "bem-weiqi",
+  "version": "0.2.0",
+  "description": "",
+  "keywords": [],
+  "author": "Alexey Litvinov <iamhoneyboy@gmail.com>",
+  "dependencies": {
+    "bower": "*",
+    "enb": "*",
+    "enb-bemxjst": "*",
+    "enb-modules": "*",
+    "vow": "*",
+    "vow-fs": "*"
+  },
+  "devDependencies": {
+    "inherit": "^2.2.1",
+    "lodash": "^2.4.1"
+  },
+  "private": true
 }
