@@ -12,5 +12,9 @@
         "vow": "*",
         "vow-fs": "*"
     },
+    "devDependencies": {
+        "underscore": "^1.6.0",
+        "inherit": "^2.2.1"
+    },
     "private": true
 }
