@@ -1,105 +1,9 @@
-module.exports = function (techName, prefix, options) {
-    var undef;
+'use strict';
 
-    if (typeof prefix !== 'string') {
-        options = prefix;
-        prefix = undef;
-    }
+var use = require('./use.js');
+module.exports = use;
 
-    options || (options = {});
-
-    return tech(techName, prefix, options);
-}
-
-exports.extend = function (moduleName, techName, options) {
-    var hash;
-
-    if (typeof techName === 'string') {
-        hash = {};
-        hash[techName] = options;
-    } else {
-        hash = techName;
-    }
-
-    extend(moduleName, hash);
-}
-
-var inherit = require('inherit');
-
-var techs = {};
-var modules = {};
-
-var Module = inherit({
-    __constructor: function (moduleName) {
-        this.module = moduleName;
-    },
-    req: function (techName) {
-        var chunks = [
-            this.module,
-            'techs',
-            techName
-        ];
-
-        return require(chunks.join('/'));
-    }
-});
-
-var Tech = inherit({
-    __constructor: function (techName) {
-        this.tech = techName;
-    },
-    options: function (targets) {
-        if (typeof targets === 'undefined') {
-            return this.targets || {};
-        } else {
-            this.targets = targets;
-            return this;
-        }
-    },
-    req: function () {
-        return this.module.req(this.tech);
-    }
-});
-
-function tech(techName, prefix, options) {
-    var tech = techs[techName];
-    var targets;
-
-    if (typeof tech === 'undefined') {
-        throw new Error(techName + ' is undefined');
-    }
-
-    if (typeof prefix === 'undefined') {
-        targets = options;
-    } else {
-        var o = tech.options();
-        targets = {};
-
-        Object.keys(o).forEach(function (key) {
-            targets[key] = o[key].replace('?', prefix);
-        });
-
-        Object.keys(options).forEach(function (key) {
-            targets[key] = options[key];
-        });
-    }
-
-    return [
-        tech.req(),
-        targets
-    ];
-}
-
-function extend(moduleName, hash) {
-    modules[moduleName] || (modules[moduleName] = new Module(moduleName));
-
-    Object.keys(hash).forEach(function (tech) {
-        techs[tech] = new Tech(tech).options(hash[tech]);
-        techs[tech].module = modules[moduleName];
-    });
-}
-
-extend('enb', {
+use.extend('enb', {
     'bemdecl-from-bemjson': {
         destTarget: '?.bemdecl.js',
         sourceTarget: '?.bemjson.js'
@@ -161,7 +65,7 @@ extend('enb', {
     }
 });
 
-extend('enb-modules', {
+use.extend('enb-modules', {
     'deps-with-modules': {
         depsTarget: '?.deps.js',
         bemdeclTarget: '?.bemdecl.js',
@@ -170,12 +74,12 @@ extend('enb-modules', {
     'prepend-modules': {}
 });
 
-extend('enb-bemxjst', {
+use.extend('enb-bemxjst', {
     'bemhtml': {},
     'bemtree': {}
 });
 
-extend('.', {
+use.extend('.', {
     'bemdecl-from-levels': {},
     'bemjson-from-bemtree': {}
 });
