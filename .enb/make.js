@@ -85,7 +85,7 @@ var path = require('path');
 /* Локальные блоки */
 var app = map();
 /* Чужие блоки */
-var lego = map('libs');
+var lego = map('base');
 
 function map() {
     var abspath = path.resolve(path.join.apply(path, arguments));
