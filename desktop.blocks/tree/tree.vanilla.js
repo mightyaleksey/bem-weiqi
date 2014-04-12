@@ -131,8 +131,14 @@ var Graph = inherit({
             arguments[i].previous = target.y;
         }
 
+        var edgenodes = {};
         target.next = target.next.filter(function (e, i, arr) {
-            return arr.indexOf(e) === i;
+            if (edgenodes[e.y]) {
+                return false;
+            } else {
+                edgenodes[e.y] = e;
+                return true;
+            }
         });
 
         return this;
