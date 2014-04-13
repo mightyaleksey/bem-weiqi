@@ -2,9 +2,9 @@ modules.define('i-bem__dom', function (provide, dom) {
     'use strict';
 
     dom.decl({
-        block: 'scheme',
+        block: 'goban',
         modName: 'theme',
-        modVal: 'casual'
+        modVal: 'eidogo'
     }, {
         /**
          * Возвращает хеш с цветами

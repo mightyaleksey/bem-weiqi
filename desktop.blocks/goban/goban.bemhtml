@@ -1,19 +1,19 @@
-block('scheme')(
+block('goban')(
     js()(true),
 
     content()([
         {
             block: 'canvas',
             mix: {
-                block: 'scheme',
+                block: 'goban',
                 elem: 'goban'
             }
         },
         {
             block: 'canvas',
             mix: {
-                block: 'scheme',
-                elem: 'game'
+                block: 'goban',
+                elem: 'stones'
             }
         }
     ])

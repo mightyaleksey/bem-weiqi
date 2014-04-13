@@ -1,7 +1,7 @@
 modules.define('i-bem__dom', function (provide, dom) {
     'use strict';
 
-    dom.decl('scheme', {
+    dom.decl('goban', {
         onSetMod: {
             js: {
                 inited: function () {
@@ -140,7 +140,7 @@ modules.define('i-bem__dom', function (provide, dom) {
          * @param {Boolean} [white]
          */
         drawStone: function (x, y, white) {
-            var goban = this.findBlockInside('game', 'canvas');
+            var goban = this.findBlockInside('stones', 'canvas');
             var coords = this.countCoords();
             var unit = this.countUnit();
             var palette = this.getPalette();
@@ -181,7 +181,7 @@ modules.define('i-bem__dom', function (provide, dom) {
          * @param {Number} y
          */
         removeStone: function (x, y) {
-            var goban = this.findBlockInside('game', 'canvas');
+            var goban = this.findBlockInside('stones', 'canvas');
             var coords = this.countCoords();
             var unit = this.countUnit();
 

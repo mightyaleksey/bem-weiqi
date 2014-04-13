@@ -1,11 +1,11 @@
-.scheme
+.goban
 {
     position: relative;
     display: inline-block;
 }
 
-.scheme__goban,
-.scheme__game
+.goban__goban,
+.goban__stones
 {
     display: block;
 
@@ -13,7 +13,7 @@
     height: 100%;
 }
 
-.scheme__game
+.goban__stones
 {
     position: absolute;
     top: 0;
