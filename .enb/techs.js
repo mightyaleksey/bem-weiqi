@@ -182,11 +182,6 @@ use.extend('enb', {
     }
 });
 
-use.extend('enb-xjst', 'bemhtml', {
-    target: '?.bemhtml.js',
-    filesTarget: '?.files'
-});
-
 use.extend('enb-modules', {
     'deps-with-modules': {
         depsTarget: '?.deps.js',
@@ -197,7 +192,10 @@ use.extend('enb-modules', {
 });
 
 use.extend('enb-bemxjst', {
-    'bemhtml': {},
+    'bemhtml': {
+        target: '?.bemhtml.js',
+        filesTarget: '?.files'
+    },
     'bemtree': {}
 });
 

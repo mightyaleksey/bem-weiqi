@@ -58,6 +58,38 @@ module.exports = function (config) {
             '?.js'
         ]);
     });
+
+    config.nodes('desktop.blocks/*/examples/*');
+
+    config.nodeMask(/examples\/./i, function (nodeConfig) {
+        nodeConfig.addTechs([
+            use('levels', '__?', {levels: exampleLevels(nodeConfig)}),
+            use('file-provider', {target: '?.bemjson.js'}),
+            use('bemdecl-from-bemjson', '__?', {sourceTarget: '?.bemjson.js'}),
+            use('deps-with-modules', '__?'),
+            use('files', '__?')
+        ]);
+
+        nodeConfig.addTech(use('bemhtml', '__?'));
+
+        nodeConfig.addTech(use('css', '__?', {target: '_?.css'}));
+
+        nodeConfig.addTechs([
+            use('browser-js', '__?'),
+            use('prepend-modules', {target: '_?.js', source: '__?.browser.js'})
+        ]);
+
+        nodeConfig.addTech(use('html-from-bemjson', '_?', {
+            bemhtmlTarget: '__?.bemhtml.js',
+            bemjsonTarget: '?.bemjson.js'
+        }));
+
+        nodeConfig.addTargets([
+            '_?.html',
+            '_?.css',
+            '_?.js'
+        ]);
+    });
 };
 
 /* Список уровней переопределения для разных целей */
@@ -74,6 +106,11 @@ function desktopLevels() {
         app('common.blocks'),
         app('desktop.blocks')
     ];
+}
+
+function exampleLevels(nodeConfig) {
+    return desktopLevels()
+        .concat(nodeConfig.resolvePath('blocks'));
 }
 
 /**
