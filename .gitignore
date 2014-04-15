@@ -4,3 +4,4 @@ base
 tmp
 
 desktop.bundle
+desktop.blocks/*/examples/*/_*
