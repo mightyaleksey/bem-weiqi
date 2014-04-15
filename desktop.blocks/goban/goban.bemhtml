@@ -15,6 +15,13 @@ block('goban')(
                 block: 'goban',
                 elem: 'stones'
             }
+        },
+        {
+            block: 'canvas',
+            mix: {
+                block: 'goban',
+                elem: 'marks'
+            }
         }
     ])
 );

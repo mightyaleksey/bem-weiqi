@@ -18,7 +18,7 @@ modules.define('i-bem__dom', ['board'], function (provide, board, dom) {
                 this.getGoban().drawStone(d.x, d.y, d.color === 2);
                 break;
             case 'remove':
-                this.getGoban().removeStone(d.x, d.y);
+                this.getGoban().remove(d.x, d.y, 'stones');
                 break;
             }
         },
