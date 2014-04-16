@@ -1,0 +1,27 @@
+block('goban')(
+    js()(true),
+
+    content()([
+        {
+            block: 'canvas',
+            mix: {
+                block: 'goban',
+                elem: 'goban'
+            }
+        },
+        {
+            block: 'canvas',
+            mix: {
+                block: 'goban',
+                elem: 'stones'
+            }
+        },
+        {
+            block: 'canvas',
+            mix: {
+                block: 'goban',
+                elem: 'marks'
+            }
+        }
+    ])
+);

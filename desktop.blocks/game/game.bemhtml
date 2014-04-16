@@ -1,0 +1,18 @@
+block('game')(
+    js()(true),
+
+    def()(function () {
+        this._mods = this.ctx.mods;
+        this.ctx.mods = {};
+        return applyNext();
+    }),
+
+    content()({
+        block: 'goban',
+        mix: {
+            block: 'game',
+            elem: 'goban'
+        },
+        mods: this._mods
+    })
+);

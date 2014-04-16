@@ -2,7 +2,7 @@ modules.define('i-bem__dom', function (provide, dom) {
     'use strict';
 
     dom.decl({
-        block: 'scheme',
+        block: 'goban',
         modName: 'marking',
         modVal: 'yes'
     }, {
