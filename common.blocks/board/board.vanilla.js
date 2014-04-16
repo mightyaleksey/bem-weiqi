@@ -143,7 +143,15 @@ var Board = inherit(events.Emitter, {
             BLACK_STONE :
             WHITE_STONE;
 
-        point.adjacent().concat(point)
+        // Список соседних точек.
+        var adjacent = this.getGroup(point)
+            .reduce(function (arr, point) {
+                return arr.concat(point.adjacent());
+            }, []);
+
+        // Фильтруем дубликаты, а также точки, цвет которых соответствует исходной.
+        // Добавляем исходную в конец для проверки (на суицид).
+        this.filter(adjacent, this.board[point.toString()]).concat(point)
             .forEach(function (p) {
                 var group = this.getGroup(p);
                 this.countLiberties(group) === 0 && this.removeGroup(group);
@@ -199,6 +207,23 @@ var Board = inherit(events.Emitter, {
         }, this);
 
         return liberties;
+    },
+    /**
+     * Отсеивает дубли, а также фильтрует камни по цвету.
+     * @param  {Array}  points Исходный массив.
+     * @param  {String} color  Фильтруемый цвет.
+     * @return {Array}
+     */
+    filter: function (points, color) {
+        var checked = {};
+        return points.filter(function (point) {
+            if (checked[point.y] || this.board[point.toString()] === color) {
+                return false;
+            }
+
+            checked[point.y] = point;
+            return true;
+        }, this);
     },
     /**
      * Формирует список камней,
