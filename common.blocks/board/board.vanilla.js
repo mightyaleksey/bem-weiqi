@@ -1,279 +1,421 @@
 modules.define('board',
-    ['inherit', 'events', 'objects'],
-    function (provide, inherit, events, objects) {
+    ['events', 'inherit', 'objects'],
+    function (provide, events, inherit, objects) {
 'use strict';
 
 /**
- * Методы, меняющие данные
+ * Якорь для преобразования координат.
  *
- * makeMove
- * makePass
+ * @type {String}
+ */
+var a = 'a'.charCodeAt();
+
+/**
+ * Кэш буквенных координат, используемый функцией map.
  *
+ * @type {Object}
+ */
+var maps = {};
+
+/**
+ * @param  {Point} point
+ * @return {Array}
+ */
+function adjacent(point) {
+    var points = [
+        [point.x() - 1, point.y()],
+        [point.x() + 1, point.y()],
+        [point.x(), point.y() - 1],
+        [point.x(), point.y() + 1]
+    ];
+
+    points = points
+        .map(function (coords) {
+            return coords.map(alphabetic.bind(null, point.size())).join('');
+        })
+        .filter(function (coords) {
+            return coords.length === 2;
+        });
+
+    return points;
+}
+
+/**
+ * Преобразует числовую координату в буквенную.
+ *
+ * @param  {Number} size Размер доски.
+ * @param  {Number} x
+ * @return {String}
+ */
+function alphabetic(size, x) {
+    return map(size).charAt(x);
+}
+
+/**
+ * Преобразует буквенную координату в числовую.
+ *
+ * @param  {String} x
+ * @return {Number}
+ */
+function numeric(x) {
+    return x.charCodeAt() - a;
+}
+
+/**
+ * Возвращает список буквенных координат для заданного размера доски.
+ *
+ * @param  {Number} size Размер доски
+ * @return {String}
+ */
+function map(size) {
+    return maps[size] ||
+        (maps[size] = Array.apply(null, Array(size))
+            .map(function (u, i) {
+                return String.fromCharCode(a + i);
+            }).join(''));
+}
+
+/**
+ * Point
+ * - pos - String
+ * - x - Number
+ * - y - Number
+ * - size - Number
+ *
+ * Node
+ * - is
+ * - isEmpty
+ * - stone
+ *
+ * Collection
+ * - adjacent
+ * - group
+ * - liberties
+ *
+ * Board
+ * - makeMove
+ * - placeStone
+ * - pos
  */
 
 /**
- * Методы для перемещения по узлам
- *
- * moveNext
- * movePrevious
- * moveTo
- *
- * Методы moveNext и movePrevious осуществляют перемещение
- * по какому-то дефолтному бранчику.
- * Переключение бранчиков будет выполняться автоматически
- * при использовании метода moveTo или редактировании
- *
- */
-
-var BLACK_STONE = 1,
-    WHITE_STONE = 2;
-
-/**
- * Хелпер для работы с точками.
+ * @class Point
  */
 var Point = inherit({
     /**
-     * @param  {String} position Буквенная позиция, например, 'ab'.
-     * @param  {Number} size     Размер доски. По умолчанию считает 19.
+     * @param  {String} position Позиция. Состоит из двух буквенных символов.
+     * @param  {Number} [size]   Размер доски.
      * @return {Point}
      */
     __constructor: function (position, size) {
-        this.x = position.charAt(0);
-        this.y = position.charAt(1);
-        this.size = size || 19;
+        this._pos = position;
+        this._x = position.charAt(0);
+        this._y = position.charAt(1);
+        this._size = size || 19;
     },
     /**
-     * Возвращает список смежных точек.
-     * @return {Array} Список точек.
+     * Возвращает позицию.
+     *
+     * @return {String} Два символа.
      */
-    adjacent: function () {
-        var points = [];
-
-        this.next(this.x) && points.push(new Point(this.next(this.x) + this.y, this.size));
-        this.next(this.y) && points.push(new Point(this.x + this.next(this.y), this.size));
-        this.previous(this.x) && points.push(new Point(this.previous(this.x) + this.y, this.size));
-        this.previous(this.y) && points.push(new Point(this.x + this.previous(this.y), this.size));
-
-        return points;
+    pos: function () {
+        return this._pos;
     },
     /**
-     * Возвращает список буквенных координат для доски заданного размера.
-     * @return {String} Строка с координатами.
+     * Возвращает размер доски.
+     *
+     * @return {Number}
      */
-    getMap: function () {
-        return this.map ||
-            (this.map = Array.apply(null, Array(this.size))
-                .map(function (u, i) {
-                    return String.fromCharCode(this + i);
-                }, 'a'.charCodeAt(0)).join(''));
+    size: function () {
+        return this._size;
     },
     /**
-     * Проверяет, является ли указанная позиция начальной на оси.
-     * @param  {String}  x Позиция на одной из координатных осей.
+     * Позиция на горизонтальной оси.
+     *
+     * @return {Number}
+     */
+    x: function () {
+        return numeric(this._x);
+    },
+    /**
+     * Позиция на вертикальной оси.
+     *
+     * @return {Number}
+     */
+    y: function () {
+        return numeric(this._y);
+    }
+});
+
+var Node = inherit([events.Emitter, Point], {
+    /**
+     * @param  {Point} point
+     * @return {Node}
+     */
+    __constructor: function (point) {
+        objects.extend(this, point);
+    },
+    /**
+     * @param  {String}  color Цвет камня.
      * @return {Boolean}
      */
-    isFirst: function (x) {
-        return x === this.getMap().charAt(0);
+    is: function (color) {
+        return this._stone === color;
     },
     /**
-     * Проверяет, является ли указанная позиция конечной на оси.
-     * @param  {String}  x Позиция на одной из координатных осей.
      * @return {Boolean}
      */
-    isLast: function (x) {
-        var map = this.getMap();
-        return x === map.charAt(map.length - 1);
+    isEmpty: function () {
+        return !this._stone;
     },
     /**
-     * Возвращает следующую на оси позицию.
-     * @param  {String} x Исходная позиция.
+     * Устанавливает камень в заданную позицию.
+     * Возвращает установленной значение.
+     *
+     * @param  {String} [color] Возможные значения: 'b'||'w'.
      * @return {String}
      */
-    next: function (x) {
-        var map = this.getMap();
-        var index = map.indexOf(x);
-        return index > -1 ? map.charAt(index + 1) : '';
+    stone: function (color) {
+        if (typeof color !== 'undefined') {
+            var type = 'add';
+            color === null && (type = 'remove');
+
+            this._stone = color;
+
+            this.emit('change', {
+                type: type,
+                color: color,
+                pos: this.pos(),
+                x: this.x(),
+                y: this.y()
+            });
+        }
+
+        return this._stone;
+    }
+});
+
+var Collection = inherit(Array, {
+    __constructor: function (nodes) {
+        Array.isArray(nodes) || (nodes = [nodes]);
+
+        nodes.forEach(function (node) {
+            this.push(node);
+        }, this);
     },
     /**
-     * Возвращает предшествующую на оси позицию.
-     * @param  {String} x Исходная позиция.
-     * @return {String}
+     * Ищет соседние камни противоположного цвета и формирует новую коллекцию из них.
+     *
+     * @param {Board}       board
+     * @return {Collection}       Возвращает новую коллекцию.
      */
-    previous: function (x) {
-        var map = this.getMap();
-        return map.charAt(map.indexOf(x) - 1);
+    adjacent: function (board) {
+        var entities = [];
+
+        this.forEach(function (entity) {
+            if (entity instanceof Collection) {
+                entities = entities.concat(entity.adjacent());
+
+                return;
+            }
+
+            if (entity instanceof Node) {
+                var color = entity.stone() === 'b' ? 'w' : 'b';
+
+                entities = entities.concat(adjacent(entity)
+                    .map(function (position) {
+                        return board.pos(new Point(position, this));
+                    }, entity.size()))
+                    .filter(function (node) {
+                        return node.is(color);
+                    });
+
+                return;
+            }
+
+            if (entity instanceof Point) {
+                entities = entities.concat(adjacent(entity).map(function (position) {
+                    return new Point(position, this);
+                }, entity.size()));
+
+                return;
+            }
+
+        });
+
+        var visited = {};
+        entities = entities.filter(function (entity) {
+            var position = entity.pos();
+
+            if (visited[position]) {
+                return false;
+            }
+
+            return visited[position] = true;
+        });
+
+        return new Collection(entities);
     },
-    toString: function () {
-        return this.x + this.y;
+    /**
+     * Преобразует камни в группы камней.
+     *
+     * @param  {Board}      board
+     * @return {Collection}
+     */
+    group: function (board) {
+        if (this.length === 1 && this[0] instanceof Node) {
+            var color = this[0].stone();
+            var group = [];
+            var queue = [];
+            var visited = {};
+
+            queue.push(this[0]);
+            visited[this[0].pos()] = true;
+
+            while (queue.length) {
+                var n = queue.pop();
+                group.push(n);
+
+                adjacent(n).forEach(function (a) {
+                    a = board.pos(new Point(a, this));
+
+                    if (visited[a.pos()]) {
+                        return false;
+                    }
+
+                    visited[a.pos()] = true;
+                    a.is(color) && queue.push(a);
+                }, this[0].size());
+            }
+
+            group = group.sort(function (a, b) {
+                if (a.pos() < b.pos()) {
+                    return -1;
+                }
+
+                if (a.pos() > b.pos()) {
+                    return 1;
+                }
+
+                return 0;
+            });
+
+            return new Collection(group);
+        }
+
+        if (this.length > 1) {
+            var rs = [];
+
+            this.forEach(function (node) {
+                var col = new Collection(node).group(board);
+                col.length && rs.push(col);
+            });
+
+            return new Collection(rs);
+        }
+
+        return [];
+    },
+    /**
+     * Проверяет, являются ли группы живыми. Если нет, то удаляет их с доски.
+     *
+     * @param  {Board} board
+     */
+    isAlive: function (board) {
+        if (this[0] instanceof Collection) {
+            this.forEach(function (col) {
+                col.isAlive(board);
+            });
+
+            return;
+        }
+
+        if (this[0] instanceof Node) {
+            var liberties = 0;
+            var visited = {};
+
+            this.forEach(function (node) {
+                adjacent(node).forEach(function (position) {
+                    if (visited[position]) {
+                        return false;
+                    }
+
+                    board.pos(new Point(position, this)).isEmpty() && liberties++;
+                    visited[position] = true;
+                }, node.size());
+            });
+
+            liberties === 0 && this.forEach(function (node) {
+                node.stone(null);
+            });
+        }
     }
 });
 
 var Board = inherit(events.Emitter, {
+    __constructor: function (size) {
+        this._expectedStone = 'b';
+        this._pos = {};
+        this._size = size || 19;
+    },
     /**
-     * @param  {Number} size Размер доски
+     * Похож на действие в реальной игре,
+     * то есть вы можете сделать шаг на пустом пересечении,
+     * только один за ход (одному ходу соответствует один узел).
+     * Вы можете захватить камни, совершив ход.
+     * В большинстве случаев текущий ход подсвечивается.
+     *
      * @return {Board}
      */
-    __constructor: function (size) {
-        // Описывает текущую позицию.
-        this.board = {};
-        // Очередность хода.
-        this.blackMove = true;
-        // Количество захваченных камней.
-        this.captured = {
-            black: 0,
-            white: 0
-        };
-        // Размер доски.
-        this.size = size;
-    },
-    /**
-     * Добавляет камень по заданным координатам на доску.
-     * Проводит ряд проверок на убийство группы, ко и суицид.
-     * @param  {String} position Координаты
-     */
     makeMove: function (point) {
-        point = new Point(point, this.size);
-        if (this.board.hasOwnProperty(point.toString())) {
-            return;
+        if (!this.pos(point).isEmpty()) {
+            return false;
         }
 
-        this.board[point.toString()] = this.blackMove ?
-            BLACK_STONE :
-            WHITE_STONE;
+        this.pos(point).stone(this._expectedStone);
 
-        // Список соседних точек.
-        var adjacent = this.getGroup(point)
-            .reduce(function (arr, point) {
-                return arr.concat(point.adjacent());
-            }, []);
+        var group = new Collection(this.pos(point)).group(this);
+        var adjacent = group.adjacent(this);
+        adjacent.length && adjacent.group(this).isAlive(this);
+        group.isAlive(this);
 
-        // Фильтруем дубликаты, а также точки, цвет которых соответствует исходной.
-        // Добавляем исходную в конец для проверки (на суицид).
-        this.filter(adjacent, this.board[point.toString()]).concat(point)
-            .forEach(function (p) {
-                var group = this.getGroup(p);
-                this.countLiberties(group) === 0 && this.removeGroup(group);
+        this._expectedStone = this._expectedStone === 'b' ? 'w' : 'b';
+
+        return this;
+    },
+    /**
+     * Размещение камня на доске подходит для воспроизведения позиции,
+     * например, установка форы, демонстрация задачи или анализ позиции
+     * ("Это будет работать в такой позиции...").
+     * Таким образом, можно разместить более одного камня,
+     * камни разных цветов, удалить камни,
+     * заменить камни на камни противоположного цвета и все это в одном узле.
+     * Однако: нет возможности пленить камни, как при обычной игре.
+     *
+     * @param  {String} [stone]  Цвет камня (если есть). Принимаемые значения 'b'||'w'.
+     * @param  {Number} [size]   Размер доски.
+     * @return {Board}
+     */
+    placeStone: function (point, color) {
+        this.pos(point).stone(color);
+
+        return this;
+    },
+    /**
+     * @param  {Point} point
+     * @return {Node}
+     */
+    pos: function (point) {
+        var position = point.pos();
+
+        if (!this._pos[position]) {
+            this._pos[position] = new Node(point);
+            this._pos[position].on('change', function (e, data) {
+                this.emit('change', data)
             }, this);
-
-        if (this.board.hasOwnProperty(point.toString())) {
-            var attrs = {};
-            attrs[this.blackMove ? 'b' : 'w'] = point.toString();
-
-            this.emit('add', {
-                color: this.board[point.toString()],
-                point: point.toString(),
-                x: point.getMap().indexOf(point.x),
-                y: point.getMap().indexOf(point.y)
-            });
         }
 
-        this.blackMove = !this.blackMove;
-    },
-    /**
-     * Игрок делает пасс. Два пасса подряд приводит к окончанию партии.
-     */
-    makePass: function () {
-        var attrs = {};
-        attrs[this.blackMove ? 'b' : 'w'] = '';
-
-        this.blackMove = !this.blackMove;
-    },
-    moveNext: function () {},
-    movePrevious: function () {},
-    moveTo: function (x) {
-        this.emit('clear');
-    },
-    /**
-     * Считает количество степеней свободы указанной группы.
-     * @param  {Array}  group Исходная группа.
-     * @return {Number}       Количество степеней.
-     */
-    countLiberties: function (group) {
-        var liberties = 0;
-        var visited = {};
-
-        group.length && group.forEach(function (point) {
-            point.adjacent().forEach(function (a) {
-                if (!this.board.hasOwnProperty(a.toString()) &&
-                        !visited[a.toString()]) {
-                    visited[a.toString()] = true;
-                    liberties++;
-                }
-            }, this);
-        }, this);
-
-        return liberties;
-    },
-    /**
-     * Отсеивает дубли, а также фильтрует камни по цвету.
-     * @param  {Array}  points Исходный массив.
-     * @param  {String} color  Фильтруемый цвет.
-     * @return {Array}
-     */
-    filter: function (points, color) {
-        var checked = {};
-        return points.filter(function (point) {
-            if (checked[point.y] || this.board[point.toString()] === color) {
-                return false;
-            }
-
-            checked[point.y] = point;
-            return true;
-        }, this);
-    },
-    /**
-     * Формирует список камней,
-     * составляющие целую группу вместе с исходной точкой.
-     * @param  {Point} point Исходная точка.
-     * @return {Array}       Список точек.
-     */
-    getGroup: function (point) {
-        var group = [];
-
-        if (this.board.hasOwnProperty(point.toString())) {
-            var color = this.board[point.toString()];
-            var queue = [];
-            var visited = {};
-
-            queue.push(point);
-            visited[point.toString()] = true;
-
-            while (queue.length) {
-                var p = queue.pop();
-                this.board[p.toString()] === color && group.push(p);
-
-                p.adjacent().forEach(function (a) {
-                    if (this.board[a.toString()] === color &&
-                            !visited[a.toString()]) {
-                        queue.push(a);
-                        visited[a.toString()] = true;
-                    }
-                }, this);
-            }
-        }
-
-        return group;
-    },
-    /**
-     * Удаляет список точек с доски.
-     * @param  {Array} group Список точек.
-     */
-    removeGroup: function (group) {
-        group.forEach(function (point) {
-            this.emit('remove', {
-                color: this.board[point.toString()],
-                point: point.toString(),
-                x: point.getMap().indexOf(point.x),
-                y: point.getMap().indexOf(point.y)
-            }, this);
-
-            var player = this.board[point.toString()] === BLACK_STONE ?
-                'black' :
-                'white';
-            this.captured[player]++;
-
-            delete this.board[point.toString()];
-        }, this);
+        return this._pos[position];
     }
 });
 
