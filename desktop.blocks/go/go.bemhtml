@@ -1,0 +1,13 @@
+block('go')(
+    js()(true),
+
+    def()(function () {
+        var mods = this.ctx.mods || {};
+
+        this.mods = this.ctx.mods = {mode: mods.mode};
+        this._mods = mods;
+        delete mods.mode;
+
+        return applyNext();
+    })
+);

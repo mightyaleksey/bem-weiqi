@@ -1,10 +1,16 @@
 modules.define('i-bem__dom', ['board'], function (provide, board, dom) {
     'use strict';
 
-    dom.decl('game', {
+    dom.decl({
+        block: 'go',
+        modName: 'mode',
+        modVal: 'game'
+    }, {
         onSetMod: {
             js: {
                 inited: function () {
+                    this.__base.apply(this, arguments);
+
                     this.board = new board.Board(19);
                     this.board.on('add', this.handleBoardEvent, this);
                     this.board.on('remove', this.handleBoardEvent, this);
@@ -21,14 +27,11 @@ modules.define('i-bem__dom', ['board'], function (provide, board, dom) {
                 this.getGoban().remove(d.x, d.y, 'stones');
                 break;
             }
-        },
-
-        getGoban: function () {
-            return this.goban ||
-                (this.goban = this.findBlockInside('goban'));
         }
     }, {
         live: function () {
+            this.__base.apply(this, arguments);
+
             this.liveBindTo('click', function (e) {
                 var x = Math.round((e.offsetX - this.getGoban().countFrame()) / this.getGoban().countUnit());
                 var y = Math.round((e.offsetY - this.getGoban().countFrame()) / this.getGoban().countUnit());

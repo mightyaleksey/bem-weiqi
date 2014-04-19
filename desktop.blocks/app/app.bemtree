@@ -8,17 +8,19 @@ block('app').def()(function () {
         ],
         content: [
             {
-                block: 'game',
+                block: 'go',
                 mods: {
+                    mode: 'game',
                     size: 'm',
                     theme: 'eidogo'
                 }
             },
             ' ',
             {
-                block: 'game',
+                block: 'go',
                 mods: {
                     marking: 'yes',
+                    mode: 'game',
                     size: 'm',
                     theme: 'eidogo'
                 }
