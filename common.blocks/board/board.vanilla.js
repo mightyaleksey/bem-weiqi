@@ -1,6 +1,6 @@
 modules.define('board',
-    ['inherit', 'events', 'objects', 'tree'],
-    function (provide, inherit, events, objects, tree) {
+    ['inherit', 'events', 'objects'],
+    function (provide, inherit, events, objects) {
 'use strict';
 
 /**
@@ -125,8 +125,6 @@ var Board = inherit(events.Emitter, {
         };
         // Размер доски.
         this.size = size;
-        // Последовательность ходов.
-        this.tree = new tree();
     },
     /**
      * Добавляет камень по заданным координатам на доску.
@@ -161,7 +159,6 @@ var Board = inherit(events.Emitter, {
             var attrs = {};
             attrs[this.blackMove ? 'b' : 'w'] = point.toString();
 
-            this.tree.addEdgeNode(attrs);
             this.emit('add', {
                 color: this.board[point.toString()],
                 point: point.toString(),
@@ -179,7 +176,6 @@ var Board = inherit(events.Emitter, {
         var attrs = {};
         attrs[this.blackMove ? 'b' : 'w'] = '';
 
-        this.tree.addEdgeNode(attrs);
         this.blackMove = !this.blackMove;
     },
     moveNext: function () {},
