@@ -12,20 +12,17 @@ modules.define('i-bem__dom', ['board'], function (provide, board, dom) {
                     this.__base.apply(this, arguments);
 
                     this.board = new board.Board(19);
-                    this.board.on('add', this.handleBoardEvent, this);
-                    this.board.on('remove', this.handleBoardEvent, this);
+                    this.board.on('change', function (e, data) {
+                        switch (data.type) {
+                        case 'add':
+                            this.getGoban().drawStone(data.x, data.y, data.color === 'w');
+                            break;
+                        case 'remove':
+                            this.getGoban().remove(data.x, data.y, 'stones');
+                            break;
+                        }
+                    }, this);
                 }
-            }
-        },
-
-        handleBoardEvent: function (e, d) {
-            switch(e.type) {
-            case 'add':
-                this.getGoban().drawStone(d.x, d.y, d.color === 2);
-                break;
-            case 'remove':
-                this.getGoban().remove(d.x, d.y, 'stones');
-                break;
             }
         }
     }, {
@@ -42,7 +39,7 @@ modules.define('i-bem__dom', ['board'], function (provide, board, dom) {
                     x = String.fromCharCode(x + base);
                     y = String.fromCharCode(y + base);
 
-                    this.board.makeMove(x + y);
+                    this.board.makeMove(new board.Point(x + y));
                 }
             });
         }
