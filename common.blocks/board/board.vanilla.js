@@ -71,6 +71,17 @@ function alphabetic(size, x) {
     return map(size).charAt(x);
 }
 
+function emit(board, type, point) {
+    board.emit('change', {
+        color: board.pos(point).color(),
+        type: type,
+        x: point.x(),
+        y: point.y()
+    });
+
+    type === 'remove' && board.pos(point).empty();
+}
+
 /**
  * Возвращает список камней, составляющих одну группу.
  *
@@ -253,6 +264,17 @@ var Node = inherit(Point, {
     },
 
     /**
+     * Очищает позицию.
+     *
+     * @return {Node}
+     */
+    empty: function () {
+        this._color = null;
+
+        return this;
+    },
+
+    /**
      * @param  {String}  color Цвет камня.
      * @return {Boolean}
      */
@@ -280,6 +302,9 @@ var Board = inherit(events.Emitter, {
         this._board = {};
         this._color = 'b';
         this._size = size || 19;
+
+        this._last = null;
+        this._lastCaptured = null;
     },
 
     /**
@@ -291,7 +316,67 @@ var Board = inherit(events.Emitter, {
      *
      * @return {Board}
      */
-    makeMove: function (point) {},
+    makeMove: function (point) {
+        if (!this.pos(point).isEmpty()) {
+            return false;
+        }
+
+        this.pos(point).color(this._color);
+
+        var board = this;
+        var current = group(board, point); // Группа, образованная текущих ходом
+
+        var queue = adjacent(board, current, this._color, true).reduce(function (arr, oposite) {
+            var g = group(board, oposite);
+
+            liberties(board, g) === 0 &&
+                (arr = arr.concat(g));
+
+            return arr;
+        }, []);
+
+        queue = unique(queue); // Список камней, подлежащих удалению
+
+        switch (queue.length) {
+        case 0:
+            if (liberties(board, current) !== 0) {
+                emit(board, 'add', point);
+                this._last = point;
+
+                this._color = this._color === 'b' ? 'w' : 'b';
+            } else {
+                board.pos(point).empty();
+            }
+
+            break;
+
+        case 1: // Проверка на Ко
+            queue = queue[0];
+
+            if (this._last &&
+                    this._lastCaptured &&
+                    queue.pos() === this._last.pos() &&
+                    point.pos() === this._lastCaptured.pos()) {
+                board.pos(point).empty();
+            } else {
+                emit(board, 'remove', queue);
+                emit(board, 'add', point);
+                this._last = point;
+                this._lastCaptured = queue;
+
+                this._color = this._color === 'b' ? 'w' : 'b';
+            }
+
+            break;
+
+        default:
+            queue.forEach(emit.bind(null, board, 'remove'));
+            emit(board, 'add', point);
+            this._last = point;
+
+            this._color = this._color === 'b' ? 'w' : 'b';
+        }
+    },
 
     /**
      * Размещение камня на доске подходит для воспроизведения позиции,
@@ -304,7 +389,9 @@ var Board = inherit(events.Emitter, {
      *
      * @return {Board}
      */
-    placeStone: function () {},
+    placeStone: function (point, color) {
+        this.pos(point).color(color);
+    },
 
     /**
      * @param  {Point} point
