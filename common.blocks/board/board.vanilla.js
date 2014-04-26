@@ -71,6 +71,26 @@ function alphabetic(size, x) {
     return map(size).charAt(x);
 }
 
+/**
+ * Считаем, что ход совершен успешно.
+ * Создает соответствующее событие и меняет цвет ожидаемого камня на следующем ходу.
+ *
+ * @param  {Board} board
+ * @param  {Point} point
+ */
+function approveMove(board, point) {
+    emit(board, 'add', point);
+    board._last = point;
+    board._color = board._color === 'b' ? 'w' : 'b';
+}
+
+/**
+ * Создает событие заданного типа.
+ *
+ * @param  {Board}  board Ссылка на доску, которая создаст данное событие.
+ * @param  {String} type  Тип события.
+ * @param  {Point}  point
+ */
 function emit(board, type, point) {
     board.emit('change', {
         color: board.pos(point).color(),
@@ -79,7 +99,7 @@ function emit(board, type, point) {
         y: point.y()
     });
 
-    type === 'remove' && board.pos(point).empty();
+    type === 'remove' && board.pos(point).free();
 }
 
 /**
@@ -110,6 +130,21 @@ function group(board, point) {
     }
 
     return group;
+}
+
+/**
+ * Проверяет, попадает ли данный ход под правило Ко.
+ *
+ * @param  {Board}   board
+ * @param  {Point}   move     Ход игрока.
+ * @param  {Point}   captured Захваченный камень.
+ * @return {Boolean}
+ */
+function isKo(board, move, captured) {
+    return board._last &&
+        board._last.pos() === captured.pos() &&
+        board._lastCaptured &&
+        board._lastCaptured.pos() === move.pos();
 }
 
 /**
@@ -268,7 +303,7 @@ var Node = inherit(Point, {
      *
      * @return {Node}
      */
-    empty: function () {
+    free: function () {
         this._color = null;
 
         return this;
@@ -317,20 +352,22 @@ var Board = inherit(events.Emitter, {
      * @return {Board}
      */
     makeMove: function (point) {
-        if (!this.pos(point).isEmpty()) {
+        var board = this;
+        var color = this._color;
+
+        if (!board.pos(point).isEmpty()) {
             return false;
         }
 
-        this.pos(point).color(this._color);
+        board.pos(point).color(color);
 
-        var board = this;
-        var current = group(board, point); // Группа, образованная текущих ходом
+        var current = group(board, point); // Группа, образованная текущим ходом
 
-        var queue = adjacent(board, current, this._color, true).reduce(function (arr, oposite) {
-            var g = group(board, oposite);
+        var queue = adjacent(board, current, color, true).reduce(function (arr, opposite) {
+            var adjacentGroup = group(board, opposite);
 
-            liberties(board, g) === 0 &&
-                (arr = arr.concat(g));
+            liberties(board, adjacentGroup) === 0 &&
+                (arr = arr.concat(adjacentGroup));
 
             return arr;
         }, []);
@@ -340,42 +377,30 @@ var Board = inherit(events.Emitter, {
         switch (queue.length) {
         case 0:
             if (liberties(board, current) !== 0) {
-                emit(board, 'add', point);
-                this._last = point;
-
-                this._color = this._color === 'b' ? 'w' : 'b';
+                approveMove(board, point);
             } else {
-                board.pos(point).empty();
+                board.pos(point).free();
             }
 
             break;
 
         case 1: // Проверка на Ко
-            queue = queue[0];
-
-            if (this._last &&
-                    this._lastCaptured &&
-                    queue.pos() === this._last.pos() &&
-                    point.pos() === this._lastCaptured.pos()) {
-                board.pos(point).empty();
+            if (isKo(board, point, queue[0])) {
+                board.pos(point).free();
             } else {
-                emit(board, 'remove', queue);
-                emit(board, 'add', point);
-                this._last = point;
+                approveMove(board, point);
+                emit(board, 'remove', queue[0]);
                 this._lastCaptured = queue;
-
-                this._color = this._color === 'b' ? 'w' : 'b';
             }
 
             break;
 
         default:
             queue.forEach(emit.bind(null, board, 'remove'));
-            emit(board, 'add', point);
-            this._last = point;
-
-            this._color = this._color === 'b' ? 'w' : 'b';
+            approveMove(board, point);
         }
+
+        return this;
     },
 
     /**
@@ -391,6 +416,9 @@ var Board = inherit(events.Emitter, {
      */
     placeStone: function (point, color) {
         this.pos(point).color(color);
+        emit(this, 'add', point);
+
+        return this;
     },
 
     /**
