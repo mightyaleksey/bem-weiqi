@@ -1,20 +1,25 @@
 {
   "name": "bem-weiqi",
-  "version": "0.2.0",
-  "description": "",
-  "keywords": [],
+  "version": "0.2.1",
+  "scripts": {
+    "server": "YENV=examples enb server",
+    "test": "YENV=tests enb server"
+  },
+  "keywords": [
+    "bem",
+    "bem-core"
+  ],
   "author": "Alexey Litvinov <iamhoneyboy@gmail.com>",
-  "dependencies": {
-    "bower": "*",
-    "enb": "*",
-    "enb-bemxjst": "*",
-    "enb-modules": "*",
-    "vow": "*",
-    "vow-fs": "*"
-  },
+  "private": true,
   "devDependencies": {
-    "inherit": "^2.2.1",
-    "lodash": "^2.4.1"
-  },
-  "private": true
+    "bower": "^1.3.3",
+    "enb": "^0.10.0",
+    "enb-bemxjst": "^1.1.1",
+    "enb-modules": "^0.1.2",
+    "mocha": "^1.18.2",
+    "should": "^3.3.1",
+    "vow": "^0.4.3",
+    "vow-fs": "^0.3.1",
+    "ym": "0.0.15"
+  }
 }

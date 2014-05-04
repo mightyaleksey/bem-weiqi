@@ -1,9 +1,15 @@
 {
-    "name": "bem-weiqi",
-    "version": "0.2.0",
-    "dependencies": {},
-    "devDependencies": {
-        "bem-core": "git://github.com/bem/bem-core.git"
-    },
-    "private": true
+  "name": "bem-weiqi",
+  "version": "0.2.1",
+  "authors": [
+    "Alexey Litvinov <iamhoneyboy@gmail.com>"
+  ],
+  "keywords": [
+    "bem",
+    "bem-core"
+  ],
+  "private": true,
+  "devDependencies": {
+    "bem-core": "git://github.com/bem/bem-core.git#~2.2.1"
+  }
 }

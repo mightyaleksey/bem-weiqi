@@ -1,7 +1,9 @@
-node_modules
-base
+base/
+node_modules/
 
-tmp
+.enb/tmp
 
-desktop.bundle
-desktop.blocks/*/examples/*/_*
+*/*/examples/*/_*
+*/*/examples/*/index.html
+*/*/examples/*/browser.js
+*/*/examples/*/common.css

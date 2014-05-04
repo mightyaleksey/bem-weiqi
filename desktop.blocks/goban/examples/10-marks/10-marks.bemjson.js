@@ -2,7 +2,7 @@
     block: 'page',
     title: 'Пример разметки',
     head: [
-        {elem: 'css', url: '_10-marks.css'}
+        {elem: 'css', url: 'common.css'}
     ],
     content: [
         {
@@ -17,6 +17,6 @@
                 }
             }
         },
-        {elem: 'js', url: '_10-marks.js'}
+        {elem: 'js', url: 'browser.js'}
     ]
 })
