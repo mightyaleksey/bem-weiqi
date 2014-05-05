@@ -390,7 +390,7 @@ var Board = inherit(events.Emitter, {
             } else {
                 approveMove(board, point);
                 emit(board, 'remove', queue[0]);
-                this._lastCaptured = queue;
+                this._lastCaptured = queue[0];
             }
 
             break;
