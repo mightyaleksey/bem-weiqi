@@ -1,6 +1,6 @@
 {
   "name": "bem-weiqi",
-  "version": "0.2.1",
+  "version": "0.3.1",
   "scripts": {
     "server": "YENV=examples enb server",
     "test": "YENV=tests enb server"

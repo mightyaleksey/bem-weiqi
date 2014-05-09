@@ -1,5 +1,5 @@
 block('canvas')(
-    tag()('canvas'),
+    js()(true),
 
-    js()(true)
+    tag()('canvas')
 );

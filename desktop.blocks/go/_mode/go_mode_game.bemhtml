@@ -1,4 +1,0 @@
-block('go').mod('mode', 'game').content()({
-    block: 'goban',
-    mods: this._mods
-});
