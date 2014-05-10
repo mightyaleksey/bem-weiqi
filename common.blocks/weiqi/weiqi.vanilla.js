@@ -1,11 +1,7 @@
-modules.define('weiqi', ['inherit'],
-    function (provide, inherit) {
+modules.define('weiqi',
+    function (provide) {
 'use strict';
 
-var weiqi = inherit(events.Emitter, {
-    __constructor: function () {}
-});
-
-provide(weiqi);
+provide();
 
 });
