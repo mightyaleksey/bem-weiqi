@@ -1,0 +1,14 @@
+block('goban')(
+    js()(true),
+
+    content()([
+        {
+            block: 'canvas',
+            mix: {block: 'goban', elem: 'board'}
+        },
+        {
+            block: 'canvas',
+            mix: {block: 'goban', elem: 'stones'}
+        }
+    ])
+);
