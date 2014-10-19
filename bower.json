@@ -10,6 +10,6 @@
   ],
   "private": true,
   "devDependencies": {
-    "bem-core": "git://github.com/bem/bem-core.git#~2.2.1"
+    "bem-core": "git://github.com/bem/bem-core.git#~2.4.0"
   }
 }
