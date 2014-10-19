@@ -1,9 +1,2 @@
-base/
+bower_components/
 node_modules/
-
-.enb/tmp
-
-*/*/examples/*/_*
-*/*/examples/*/index.html
-*/*/examples/*/browser.js
-*/*/examples/*/common.css
