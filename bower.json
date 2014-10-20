@@ -11,6 +11,7 @@
   "private": true,
   "dependencies": {
     "bem-core": "git://github.com/bem/bem-core.git#~2.4.0",
-    "d3": "~3.4.13"
+    "d3": "~3.4.13",
+    "backbone": "~1.1.2"
   }
 }
