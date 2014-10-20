@@ -2,7 +2,8 @@
   "name": "bem-weiqi",
   "version": "0.2.1",
   "scripts": {
-    "install": "ln -fs $(pwd)/pre-commit $(pwd)/.git/hooks/pre-commit"
+    "install": "ln -fs $(pwd)/pre-commit $(pwd)/.git/hooks/pre-commit",
+    "uninstall": "rm $(pwd)/.git/hooks/pre-commit"
   },
   "keywords": [
     "bem",
