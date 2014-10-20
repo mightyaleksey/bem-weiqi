@@ -3,21 +3,23 @@
 # getting javascript files in the staging area
 js=`git diff --cached --name-status | awk '$1 != "R" { print $2 }' | grep \.js$`
 
-# has files
-if [ $js ]; then
-    # running jshint
-    echo '[jshint]'
-    if ! jshint --reporter node_modules/jshint-stylish/stylish.js $js; then
-        # has errors, exit
-        exit 1
-    fi
+# no files, exit
+if [ ! $js ]; then
+    exit 0
+fi
 
-    # running jscs
-    echo '[jscs]'
-    if ! jscs $js; then
-        # has errors, exit
-        exit 1
-    fi
+# running jshint
+echo '[jshint]'
+if ! jshint --reporter node_modules/jshint-stylish/stylish.js $js; then
+    # has errors, exit
+    exit 1
+fi
+
+# running jscs
+echo '[jscs]'
+if ! jscs $js; then
+    # has errors, exit
+    exit 1
 fi
 
 exit 0
