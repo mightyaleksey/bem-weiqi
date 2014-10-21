@@ -2,7 +2,8 @@
   "name": "bem-weiqi",
   "version": "0.2.1",
   "scripts": {
-    "install": "ln -fs $(pwd)/pre-commit $(pwd)/.git/hooks/pre-commit",
+    "install": "bower install",
+    "postinstall": "ln -fs $(pwd)/pre-commit $(pwd)/.git/hooks/pre-commit",
     "uninstall": "rm $(pwd)/.git/hooks/pre-commit"
   },
   "keywords": [
@@ -13,7 +14,8 @@
   "private": true,
   "dependencies": {
     "bower": "^1.3.12",
-    "gulp": "^3.8.8"
+    "gulp": "^3.8.8",
+    "gulp-concat": "^2.4.1"
   },
   "devDependencies": {
     "jscs": "^1.7.3",
